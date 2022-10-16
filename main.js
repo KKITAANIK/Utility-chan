@@ -532,6 +532,10 @@ client.on('messageCreate', async message => {
         if (message.author.bot) return;
         message.channel.send('https://docs.google.com/spreadsheets/d/1pioDoqQaRiWkrtZlMPuAUH2VouoC2NgPeh66rHOMT0U/edit?usp=sharing');
     }
+    else if (message.content === prefix + "source") {
+        if (message.author.bot) return;
+        message.channel.send('https://github.com/KKITAANIK/Utility-chan');
+    }
     else if (message.content === prefix + "help" && (botChannels.includes(message.channelId) || message.channel.type === ChannelType.DM)) {
         if (message.author.bot) return;
 
@@ -543,6 +547,8 @@ client.on('messageCreate', async message => {
 `u!tierlists`: Links to the tierlist redirectory.\n\
 `u!spreadsheets`: Links to the spreadsheet redirectory.\n\
 `u!family tree`: Links to the Inventory family tree.\n\
+`u!source`: Links to my source code on GitHub.\n\
+`u!NNN`: Links to the list of No Nut November participants. This command will be removed when the event is over.\n\
 <:blank:1026792857153048596>")
 
         await message.channel.send("**Parameter Commands (Random Number Generation):**\n\
