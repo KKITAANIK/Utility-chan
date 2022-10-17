@@ -54,7 +54,20 @@ const activities = ["Use [u!help] for help.",
     "Dice rolling is complicated. Use [u!help].",
     "I read every message. Even the deleted ones.",
     "[u!help] can only be used in bot channels or DMs.",
-    "#deleted-channel? See if a thread got archived."];
+    "#deleted-channel? See if a thread got archived.",
+    "Consider making your brain open source, too.",
+    "Press Ctrl to crouch.",
+    "69 KB. Apparently this is an achievement.",
+    "Consider using [u!remind] to keep track of your threads.",
+    "I can't remake ChannelTabs without full control of your Discord client.",
+    "Calendar-chan is doing fine. She sleeps most of the time.",
+    "Speaking without a face is easier than you think.",
+    "Abiogenesis is the emergence of life from inorganic matter.",
+    "There's nothing wrong with being horny, just don't lose control.",
+    "Wondering if a channel is a good fit for [u!remind]? [u!help] has a few links to help.",
+    "Bugs aren't fun for me, either.",
+    "I'm actually almost a month older than Calendar-chan.",
+    "I have a birthday. It's September 17."];
 
 const readline = require('readline');
 const {google} = require('googleapis');
