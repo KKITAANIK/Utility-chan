@@ -51,9 +51,9 @@ const activities = ["Use [u!help] for help.",
     "Send any feature ideas to Adrian.",
     "Your brain doesn't have documentation, either.",
     "Slash commands won't be added until it becomes a problem.",
-    "Dice rolling is complicated. Use [u!help].",
+    "Dice rolling is complicated. Use [u!help roll].",
     "I read every message. Even the deleted ones.",
-    "[u!help] can only be used in bot channels or DMs.",
+    "[u!help full] and [u!help remind] can only be used in bot channels or DMs.",
     "#deleted-channel? See if a thread got archived.",
     "Consider making your brain open source, too.",
     "Press Ctrl to crouch.",
@@ -64,7 +64,7 @@ const activities = ["Use [u!help] for help.",
     "Speaking without a face is easier than you think.",
     "Abiogenesis is the emergence of life from inorganic matter.",
     "There's nothing wrong with being horny, just don't lose control.",
-    "Wondering if a channel is a good fit for [u!remind]? [u!help] has a few links to help.",
+    "Wondering if a channel is a good fit for [u!remind]? [u!help remind] has a few links to help.",
     "Bugs aren't fun for me, either.",
     "I'm actually almost a month older than Calendar-chan.",
     "I have a birthday. It's September 17."];
@@ -549,11 +549,46 @@ client.on('messageCreate', async message => {
         if (message.author.bot) return;
         message.channel.send('https://github.com/KKITAANIK/Utility-chan');
     }
-    else if (message.content === prefix + "help" && (botChannels.includes(message.channelId) || message.channel.type === ChannelType.DM)) {
+    else if (message.content.startsWith(prefix + "help")) {
         if (message.author.bot) return;
-
-        await message.channel.send("**Basic Commands:**\n\
-`u!help`: The command you're looking at. It list all current commands and features.\n\
+        const helpMsg = message.content.slice(6).trim();
+        if (helpMsg.length == 0 || helpMsg == "help") {
+            message.channel.send("Use `u!help ____` with any command for help with that command. You may also enter command categories to get help on all commands in that category.\n\
+Use `u!help commands` for a list of all commands.\n\
+Use `u!help categories` for a list of all command categories.\n\
+Use `u!help full` for an explanation of every command and feature.\n\
+Note that `u!help full` and `u!help remind` can only be used in bot channels or DMs, due to their length.");
+        }
+        else if (helpMsg == "commands") {
+            message.channel.send("A list of all commands I currently know:\n\
+    ⁃ `help`\n\
+    ⁃ `ping`\n\
+    ⁃ `uptime`\n\
+    ⁃ `birthdays`\n\
+    ⁃ `tierlists`\n\
+    ⁃ `spreadsheets`\n\
+    ⁃ `family tree`\n\
+    ⁃ `source`\n\
+    ⁃ `NNN`\n\
+    ⁃ `choose`\n\
+    ⁃ `roll`\n\
+    ⁃ `remind`\n\
+    ⁃ `unremind`\n\
+    ⁃ `suggest`\n\
+    ⁃ `roster`")
+        }
+        else if (helpMsg == "categories") {
+            message.channel.send("A list of the various command categories:\n\
+    ⁃ `u!help basic`: Basic commands that don't take any parameters\n\
+    ⁃ `u!help rng`: Commands that use random number generation (`u!choose` and `u!roll`)\n\
+    ⁃ `u!help remind`: Details on the reminder system, and the commands `u!remind` and `u!unremind`\n\
+    ⁃ `u!help utility`: Miscellaneous parameter commands that fulfill server utility (`u!suggest` and `u!roster`)\n\
+    ⁃ `u!help features`: Various features that aren't associated with any commands");
+        }
+        else if (helpMsg == "full") {
+            if (botChannels.includes(message.channelId) || message.channel.type === ChannelType.DM) {
+                await message.channel.send("**Basic Commands:**\n\
+`u!help`: Gives information on various commands and features. Use `u!help` for more information.\n\
 `u!ping`: This command pings me. You can use it to check for general and API latency, as well as making sure I'm online.\n\
 `u!uptime`: Check how long I've been online.\n\
 `u!birthdays`: Links to the birthday sheet.\n\
@@ -562,9 +597,9 @@ client.on('messageCreate', async message => {
 `u!family tree`: Links to the Inventory family tree.\n\
 `u!source`: Links to my source code on GitHub.\n\
 `u!NNN`: Links to the list of No Nut November participants. This command will be removed when the event is over.\n\
-<:blank:1026792857153048596>")
+<:blank:1026792857153048596>");
 
-        await message.channel.send("**Parameter Commands (Random Number Generation):**\n\
+                await message.channel.send("**Parameter Commands (Random Number Generation):**\n\
 `u!choose`:\n\
         Usage: `u!choose 𝑎 | 𝑏 | 𝑐`\n\
         Description: Chooses between any number of options (in this instance 𝑎, 𝑏, and 𝑐). Remember to separate each one with a vertical bar.\n\
@@ -577,7 +612,7 @@ client.on('messageCreate', async message => {
         Description: Replacing the number of sides with the character `f` makes it a fudge die. A fudge die has three possible outcomes: -1, 0, and 1. Fudge dice otherwise function identically to normal dice, and require no other changes to syntax.\n\
 <:blank:1026792857153048596>");
 
-        await message.channel.send("**Parameter Commands (Reminders):**\n\
+                await message.channel.send("**Parameter Commands (Reminders):**\n\
 Feel free to read this post (<https://discord.com/channels/466063257472466944/544025844620853249/1026981909772898345>) for a broader explanation of the Remind feature, especially its purpose and usage.\n\
 `u!remind`:\n\
         Usage: `u!remind`\n\
@@ -588,7 +623,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Description: Adds all listed channels to your remindlist. If a channel is not valid, it will not be added. Each channel must be separated by a comma.\n\
         Usage: `u!remind track`\n\
         Description: Toggles response tracking for your remindlist. When response tracking is on, your remindlist will show a <:ping:1026739369995931650> next to any channels in which you did not send the last message. IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).");
-        await message.channel.send("`u!unremind`:\n\
+                await message.channel.send("`u!unremind`:\n\
         Usage: `u!unremind #my-channel` or `u!remind ID:123456789012345678`\n\
         Description: Removes a channel from your remindlist.\n\
         Advanced Usage: `u!unremind #my-channel, #my-other-channel, ID:123456789012345678`\n\
@@ -599,7 +634,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Descriptions: Removes all channels from your remindlist.\n\
 <:blank:1026792857153048596>");
 
-        await message.channel.send("**Parameter Commands (Other):**\n\
+                await message.channel.send("**Parameter Commands (Other):**\n\
 `u!suggest`:\n\
         Usage: `u!suggest [message]`\n\
         Description: Sends your message in <#544025844620853249>, along with a record of who sent it and in which channel. <:yes:938908644202913872>, <:neutral:938908656282529842>, and <:no:938908668362121216> will be added automatically as reactions for ease of voting.\n\
@@ -612,10 +647,140 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Description: View the roster of the mentioned user if they have one. You can use their discord username and discriminator if you don't want to ping them.\n\
 <:blank:1026792857153048596>");
 
-        message.channel.send("**Features:**\n\
-        - Every day at midnight (Pacific Time), I check the birthday sheet and ping anyone with the calendar-watcher role about any birthdays for that day. The sheet also contains certain \"holidays\" that might spark ideas for threads.\n\
-        - For every message sent in the servers I'm in, I check if it contains any words I haven't seen before and let <@!221482385399742465> know if it does. He does whatever he wants with that information, usually just sharing the ones he thinks are funny.\n\
-        - If you DM me, I'll tell <@!221482385399742465> what you said, but I can't send messages that are too long, have images, or use custom emojis. There isn't any real reason to do this, but sometimes I respond.");
+                message.channel.send("**Features:**\n\
+    ⁃ Every day at midnight (Pacific Time), I check the birthday sheet and ping anyone with the calendar-watcher role about any birthdays for that day. The sheet also contains certain \"holidays\" that might spark ideas for threads.\n\
+    ⁃ For every message sent in the servers I'm in, I check if it contains any words I haven't seen before and let <@!221482385399742465> know if it does. He does whatever he wants with that information, usually just sharing the ones he thinks are funny.\n\
+    ⁃ If you DM me, I'll tell <@!221482385399742465> what you said, but I can't send messages that are too long, have images, or use custom emojis. I also might respond.\n\
+    ⁃ My status changes every hour, selected from a premade pool of options.");
+            }
+            else {
+                message.channel.send("To avoid spam, `u!help full` can only be used in bot channels or DMs.")
+            }
+        }
+        else if (helpMsg == "ping") {
+            message.channel.send("`u!ping`: This command pings me. You can use it to check for general and API latency, as well as making sure I'm online.");
+        }
+        else if (helpMsg == "uptime") {
+            message.channel.send("`u!uptime`: Check how long I've been online.");
+        }
+        else if (helpMsg == "birthdays") {
+            message.channel.send("`u!birthdays`: Links to the birthday sheet.");
+        }
+        else if (helpMsg == "tierlists") {
+            message.channel.send("`u!tierlists`: Links to the tierlist redirectory.");
+        }
+        else if (helpMsg == "spreadsheets") {
+            message.channel.send("`u!spreadsheets`: Links to the spreadsheet redirectory.");
+        }
+        else if (helpMsg == "family tree") {
+            message.channel.send("`u!family tree`: Links to the Inventory family tree.");
+        }
+        else if (helpMsg == "source") {
+            message.channel.send("`u!source`: Links to my source code on GitHub.");
+        }
+        else if (helpMsg == "nnn" || helpMsg == "NNN") {
+            message.channel.send("`u!NNN`: Links to the list of No Nut November participants. This command will be removed when the event is over.");
+        }
+        else if (helpMsg == "choose") {
+            message.channel.send("`u!choose`:\n\
+        Usage: `u!choose 𝑎 | 𝑏 | 𝑐`\n\
+        Description: Chooses between any number of options (in this instance 𝑎, 𝑏, and 𝑐). Remember to separate each one with a vertical bar.");
+        }
+        else if (helpMsg == "roll") {
+            message.channel.send("`u!roll`:\n\
+        Usage: `u!roll 𝑎d𝑥`\n\
+        Description: Rolls any number of dice, with any number of sides. In this instance you're telling me to roll 𝑎 dice with 𝑥 sides.\n\
+        Advanced Usage: `u!roll 𝑎d𝑥+𝑖 𝑏d𝑦+𝑗 𝑐d𝑧+𝑘 +𝑡`\n\
+        Description: 𝑎, 𝑏, and 𝑐 control how many dice are being rolled, 𝑥, 𝑦, and 𝑧 control the number of sides for each of those dice, 𝑖, 𝑗, and 𝑘 add a set number to *each* roll of that die, and 𝑡 is a number that is added to the *entire* equation. The distinction is in spacing, so `u!roll 5d+3` means 3 is added 5 times, whereas `u!roll 5d +3` means that 3 is only added once.\n\
+        Advanced Usage: `u!roll 𝑎d𝑥+𝑖 𝑏df+𝑗`\n\
+        Description: Replacing the number of sides with the character `f` makes it a fudge die. A fudge die has three possible outcomes: -1, 0, and 1. Fudge dice otherwise function identically to normal dice, and require no other changes to syntax.");
+        }
+        else if (helpMsg == "remind" || helpMsg == "unremind") {
+            if (botChannels.includes(message.channelId) || message.channel.type === ChannelType.DM) {
+                await message.channel.send("**Remind Commands:**\n\
+Feel free to read this post (<https://discord.com/channels/466063257472466944/544025844620853249/1026981909772898345>) for a broader explanation of the Remind feature, especially its purpose and usage.\n\
+`u!remind`:\n\
+        Usage: `u!remind`\n\
+        Description: Displays your remindlist.\n\
+        Usage: `u!remind #my-channel` or `u!remind ID:123456789012345678`\n\
+        Description: Adds a channel to your remindlist. When a channel is on your remindlist, you will receive a DM from me whenever somemone besides yourself sends a message in that channel. Please read this post (<https://discord.com/channels/466063257472466944/544025844620853249/1025213227308679180>) to determine if a channel is a good fit for the remind command.\n\
+        Advanced Usage: `u!remind #my-channel, #my-other-channel, ID:123456789012345678`\n\
+        Description: Adds all listed channels to your remindlist. If a channel is not valid, it will not be added. Each channel must be separated by a comma.\n\
+        Usage: `u!remind track`\n\
+        Description: Toggles response tracking for your remindlist. When response tracking is on, your remindlist will show a <:ping:1026739369995931650> next to any channels in which you did not send the last message. IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).");
+                message.channel.send("`u!unremind`:\n\
+        Usage: `u!unremind #my-channel` or `u!remind ID:123456789012345678`\n\
+        Description: Removes a channel from your remindlist.\n\
+        Advanced Usage: `u!unremind #my-channel, #my-other-channel, ID:123456789012345678`\n\
+        Description: Removes all listed channels to your remindlist. If a channel is not valid, it will not be removed. Each channel must be separated by a comma.\n\
+        Usage: `u!unremind deleted`\n\
+        Description: If a channel on your remindlist is deleted or becomes inacessible, it will be displayed on your remindlist as #deleted-channel. `u!unremind deleted` will remove all instances of #deleted-channel from your remindlist. (Please note that archived threads may also show up as #deleted-channel. Simply re-open them and they will display correctly.)\n\
+        Usage: `u!unremind all`\n\
+        Descriptions: Removes all channels from your remindlist.");
+            }
+            else {
+                message.channel.send("To avoid spam, `u!help remind` can only be used in bot channels or DMs.")
+            }
+        }
+        else if (helpMsg == "suggest") {
+            message.channel.send("`u!suggest`:\n\
+        Usage: `u!suggest [message]`\n\
+        Description: Sends your message in <#544025844620853249>, along with a record of who sent it and in which channel. <:yes:938908644202913872>, <:neutral:938908656282529842>, and <:no:938908668362121216> will be added automatically as reactions for ease of voting.");
+        }
+        else if (helpMsg == "roster") {
+            message.channel.send("`u!roster`:\n\
+        Usage: `u!roster`\n\
+        Description: Displays your currently set roster message.\n\
+        Usage: `u!roster [message]`\n\
+        Description: Sets your roster message to `[message]`.\n\
+        Usage: `u!roster `<@!221482385399742465>` ` or `u!roster HereToHelp#1941`\n\
+        Description: View the roster of the mentioned user if they have one. You can use their discord username and discriminator if you don't want to ping them.");
+        }
+        else if (helpMsg == "basic") {
+            message.channel.send("**Basic Commands:**\n\
+`u!help`: Gives information on various commands and features. Use `u!help` for more information.\n\
+`u!ping`: This command pings me. You can use it to check for general and API latency, as well as making sure I'm online.\n\
+`u!uptime`: Check how long I've been online.\n\
+`u!birthdays`: Links to the birthday sheet.\n\
+`u!tierlists`: Links to the tierlist redirectory.\n\
+`u!spreadsheets`: Links to the spreadsheet redirectory.\n\
+`u!family tree`: Links to the Inventory family tree.\n\
+`u!source`: Links to my source code on GitHub.\n\
+`u!NNN`: Links to the list of No Nut November participants. This command will be removed when the event is over.");
+        }
+        else if (helpMsg == "rng") {
+            message.channel.send("**RNG Commands:**\n\
+`u!choose`:\n\
+        Usage: `u!choose 𝑎 | 𝑏 | 𝑐`\n\
+        Description: Chooses between any number of options (in this instance 𝑎, 𝑏, and 𝑐). Remember to separate each one with a vertical bar.\n\
+`u!roll`:\n\
+        Usage: `u!roll 𝑎d𝑥`\n\
+        Description: Rolls any number of dice, with any number of sides. In this instance you're telling me to roll 𝑎 dice with 𝑥 sides.\n\
+        Advanced Usage: `u!roll 𝑎d𝑥+𝑖 𝑏d𝑦+𝑗 𝑐d𝑧+𝑘 +𝑡`\n\
+        Description: 𝑎, 𝑏, and 𝑐 control how many dice are being rolled, 𝑥, 𝑦, and 𝑧 control the number of sides for each of those dice, 𝑖, 𝑗, and 𝑘 add a set number to *each* roll of that die, and 𝑡 is a number that is added to the *entire* equation. The distinction is in spacing, so `u!roll 5d+3` means 3 is added 5 times, whereas `u!roll 5d +3` means that 3 is only added once.\n\
+        Advanced Usage: `u!roll 𝑎d𝑥+𝑖 𝑏df+𝑗`\n\
+        Description: Replacing the number of sides with the character `f` makes it a fudge die. A fudge die has three possible outcomes: -1, 0, and 1. Fudge dice otherwise function identically to normal dice, and require no other changes to syntax.");
+        }
+        else if (helpMsg == "utility") {
+            message.channel.send("**Utility Commands:**\n\
+`u!suggest`:\n\
+        Usage: `u!suggest [message]`\n\
+        Description: Sends your message in <#544025844620853249>, along with a record of who sent it and in which channel. <:yes:938908644202913872>, <:neutral:938908656282529842>, and <:no:938908668362121216> will be added automatically as reactions for ease of voting.\n\
+`u!roster`:\n\
+        Usage: `u!roster`\n\
+        Description: Displays your currently set roster message.\n\
+        Usage: `u!roster [message]`\n\
+        Description: Sets your roster message to `[message]`.\n\
+        Usage: `u!roster `<@!221482385399742465>` ` or `u!roster HereToHelp#1941`\n\
+        Description: View the roster of the mentioned user if they have one. You can use their discord username and discriminator if you don't want to ping them.");
+        }
+        else if (helpMsg == "features") {
+            message.channel.send("**Features:**\n\
+    ⁃ Every day at midnight (Pacific Time), I check the birthday sheet and ping anyone with the calendar-watcher role about any birthdays for that day. The sheet also contains certain \"holidays\" that might spark ideas for threads.\n\
+    ⁃ For every message sent in the servers I'm in, I check if it contains any words I haven't seen before and let <@!221482385399742465> know if it does. He does whatever he wants with that information, usually just sharing the ones he thinks are funny.\n\
+    ⁃ If you DM me, I'll tell <@!221482385399742465> what you said, but I can't send messages that are too long, have images, or use custom emojis. I also might respond.\n\
+    ⁃ My status changes every hour, selected from a premade pool of options.");
+        }
     }
     /*if (message.content === prefix + "boost") {
         if (message.author.bot) return;
