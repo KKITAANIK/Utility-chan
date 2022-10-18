@@ -427,7 +427,7 @@ client.on('messageCreate', async message => {
     }
     if (message.channel.type === ChannelType.DM) {
         console.log("Recieved DM message");
-        if (message.author.id != 888209624631750667 && message.author.id != 221482385399742465) {
+        if (message.author.id != 888209624631750667 && message.author.id != 221482385399742465 && !message.content.startsWith(prefix)) {
             if (message.content.length <= 1800) {
                 let msgContent = '> ' + message.content.replaceAll('\n', '\n> ');
                 utility_dms.send("<@!221482385399742465>\nNew DM from " + message.author.username + ".\n" + msgContent);
@@ -479,7 +479,8 @@ client.on('messageCreate', async message => {
         if (message.author.id != key) {
             if (remindlist[key].includes(message.channelId)) { 
                 let tarUser = client.users.cache.get(key);
-                tarUser.send("New message in <#" + message.channelId + "> from " + message.author.username + ": " + messageLink(message));
+                tarUser.send("New message in <#" + message.channelId + "> from " + message.author.username + ": " + messageLink(message))
+                    .catch(() => botLogs.send("<@!221482385399742465> Could not DM " + tarUser.username + ".")); 
                 console.log("Reminder sent to " + client.users.cache.get(key).username + " for " + message.channel.name);
             }
         }
@@ -835,7 +836,8 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         const msgArray = msgStr.split(/(?<=^\S+)\s/);
         console.log(msgArray);
         let tarUser = client.users.cache.get(msgArray[0]);
-        tarUser.send(msgArray[1]);
+        tarUser.send(msgArray[1])
+            .catch(() => botLogs.send("<@!221482385399742465> Could not DM " + tarUser.username + "."));
         console.log("Said \"" + msgArray[1] + "\" to " + tarUser.username + ".");
     }
     else if (message.content.startsWith(prefix + 'suggest')) {
