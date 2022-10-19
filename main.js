@@ -30,6 +30,7 @@ var rosterlist = {};
 var userrosters = {};
 var remindlist = {};
 var remindpings = {};
+var remindoptout = {};
 const pacificOffset = -8;
 
 const SUFFIXES = {1: 'st', 2: 'nd', 3: 'rd', 4: 'th', 5: 'th', 6: 'th', 7: 'th', 8: 'th', 9: 'th', 0: 'th'};
@@ -204,6 +205,15 @@ try {
     if (fs.existsSync("./remindpings.json")) {
         remindpings = require("./remindpings.json");
         console.log("remindpings loaded from file.")
+    }
+} catch(err) {
+    console.log(err);
+}
+
+try {
+    if (fs.existsSync("./remindoptout.json")) {
+        remindoptout = require("./remindoptout.json");
+        console.log("remindoptout loaded from file.")
     }
 } catch(err) {
     console.log(err);
@@ -476,6 +486,11 @@ client.on('messageCreate', async message => {
         }
     }
     for (let key in remindlist) {
+        if (remindoptout.hasOwnProperty(key)) {
+            if (remindoptout[key] == true) {
+                continue;
+            }
+        }
         if (message.author.id != key) {
             if (remindlist[key].includes(message.channelId)) { 
                 let tarUser = client.users.cache.get(key);
@@ -623,7 +638,9 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Advanced Usage: `u!remind #my-channel, #my-other-channel, ID:123456789012345678`\n\
         Description: Adds all listed channels to your remindlist. If a channel is not valid, it will not be added. Each channel must be separated by a comma.\n\
         Usage: `u!remind track`\n\
-        Description: Toggles response tracking for your remindlist. When response tracking is on, your remindlist will show a <:ping:1026739369995931650> next to any channels in which you did not send the last message. IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).");
+        Description: Toggles response tracking for your remindlist. When response tracking is on, your remindlist will show a <:ping:1026739369995931650> next to any channels in which you did not send the last message. IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).\n\
+        Usage: `u!unremind DMs`\n\
+        Description: Toggles whether you receive DM reminders from Utility-chan when a new message is posted in channels on your remindlist.");
                 await message.channel.send("`u!unremind`:\n\
         Usage: `u!unremind #my-channel` or `u!remind ID:123456789012345678`\n\
         Description: Removes a channel from your remindlist.\n\
@@ -708,7 +725,9 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Advanced Usage: `u!remind #my-channel, #my-other-channel, ID:123456789012345678`\n\
         Description: Adds all listed channels to your remindlist. If a channel is not valid, it will not be added. Each channel must be separated by a comma.\n\
         Usage: `u!remind track`\n\
-        Description: Toggles response tracking for your remindlist. When response tracking is on, your remindlist will show a <:ping:1026739369995931650> next to any channels in which you did not send the last message. IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).");
+        Description: Toggles response tracking for your remindlist. When response tracking is on, your remindlist will show a <:ping:1026739369995931650> next to any channels in which you did not send the last message. IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).\n\
+        Usage: `u!unremind DMs`\n\
+        Description: Toggles whether you receive DM reminders from Utility-chan when a new message is posted in channels on your remindlist.");
                 message.channel.send("`u!unremind`:\n\
         Usage: `u!unremind #my-channel` or `u!remind ID:123456789012345678`\n\
         Description: Removes a channel from your remindlist.\n\
@@ -1151,6 +1170,24 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
             fs.writeFile("remindpings.json", JSON.stringify(remindpings), function(err) {
                 if (err) throw err;
                 console.log('remindpings.json saved');
+            });
+        }
+        else if (remindmsg.toLowerCase() == "dms") {
+            if (remindoptout.hasOwnProperty(message.author.id) == false) {
+                remindoptout[message.author.id] = true;
+                message.channel.send("You will no longer be notified when a message is sent in channels on your remindlist. Use `u!remind DMs` again to re-enable this feature.");
+            }
+            else if (remindoptout[message.author.id] == false) {
+                remindoptout[message.author.id] = true;
+                message.channel.send("You will no longer be notified when a message is sent in channels on your remindlist. Use `u!remind DMs` again to re-enable this feature.");
+            }
+            else if (remindoptout[message.author.id] == true) {
+                remindoptout[message.author.id] = false;
+                message.channel.send("You will be notified when a message is sent in channels on your remindlist. Use `u!remind DMs` again to disable this feature.");
+            }
+            fs.writeFile("remindoptout.json", JSON.stringify(remindoptout), function(err) {
+                if (err) throw err;
+                console.log('remindoptout.json saved');
             });
         }
         else {
