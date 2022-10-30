@@ -31,7 +31,7 @@ var userrosters = {};
 var remindlist = {};
 var remindpings = {};
 var remindoptout = {};
-const pacificOffset = -8;
+const pacificOffset = -7;
 
 const SUFFIXES = {1: 'st', 2: 'nd', 3: 'rd', 4: 'th', 5: 'th', 6: 'th', 7: 'th', 8: 'th', 9: 'th', 0: 'th'};
 const botChannels = ["609808462813331470", "810372243389022228", "888492774251462749", "876199968967381072", "853752363495325718"];
@@ -42,7 +42,7 @@ const activities = ["Use [u!help] for help.",
     "Ask Adrian if you have any problems. He loves being pinged.",
     "Online and awaiting commands.",
     "Do you know whose birthday it is?",
-    "Four bots combined, and better.",
+    "Fulfilling the role of four bots and a Discord plugin all at once.",
     "There is no points system.",
     "I also track really creative typos.",
     "Commands work in DMs, too.",
@@ -51,20 +51,17 @@ const activities = ["Use [u!help] for help.",
     "Report any bugs to Adrian.",
     "Send any feature ideas to Adrian.",
     "Your brain doesn't have documentation, either.",
-    "Slash commands won't be added until it becomes a problem.",
+    "Slash commands won't be added until it becomes a problem. It isn't my decision.",
     "Dice rolling is complicated. Use [u!help roll].",
     "I read every message. Even the deleted ones.",
     "[u!help full] and [u!help remind] can only be used in bot channels or DMs.",
     "#deleted-channel? See if a thread got archived.",
     "Consider making your brain open source, too.",
-    "Press Ctrl to crouch.",
     "69 KB. Apparently this is an achievement.",
     "Consider using [u!remind] to keep track of your threads.",
-    "I can't remake ChannelTabs without full control of your Discord client.",
     "Calendar-chan is doing fine. She sleeps most of the time.",
     "Speaking without a face is easier than you think.",
     "Abiogenesis is the emergence of life from inorganic matter.",
-    "There's nothing wrong with being horny, just don't lose control.",
     "Wondering if a channel is a good fit for [u!remind]? [u!help remind] has a few links to help.",
     "Bugs aren't fun for me, either.",
     "I'm actually almost a month older than Calendar-chan.",
@@ -447,12 +444,23 @@ client.on('messageCreate', async message => {
             }
         }
         else {
-            if (message.content.length <= 1800) {
-                let msgContent = '> ' + message.content.replaceAll('\n', '\n> ');
-                utility_dms.send("New DM from " + message.author.username + " to " + client.users.cache.get(message.channel.recipientId).username + ".\n" + msgContent);
+            if (message.author.id == 888209624631750667) {
+                if (message.content.length <= 1800) {
+                    let msgContent = '> ' + message.content.replaceAll('\n', '\n> ');
+                    utility_dms.send("New DM from " + message.author.username + " to " + client.users.cache.get(message.channel.recipientId).username + ".\n" + msgContent);
+                }
+                else {
+                    utility_dms.send("New DM from " + message.author.username + " to " + client.users.cache.get(message.channel.recipientId).username + ".\n[MESSAGE TOO LONG TO SEND]");
+                }
             }
             else {
-                utility_dms.send("New DM from " + message.author.username + " to " + client.users.cache.get(message.channel.recipientId).username + ".\n[MESSAGE TOO LONG TO SEND]");
+                if (message.content.length <= 1800) {
+                    let msgContent = '> ' + message.content.replaceAll('\n', '\n> ');
+                    utility_dms.send("New DM from " + message.author.username + ".\n" + msgContent);
+                }
+                else {
+                    utility_dms.send("New DM from " + message.author.username + ".\n[MESSAGE TOO LONG TO SEND]");
+                }
             }
         }
     }
@@ -485,18 +493,20 @@ client.on('messageCreate', async message => {
             }
         }
     }
-    for (let key in remindlist) {
-        if (remindoptout.hasOwnProperty(key)) {
-            if (remindoptout[key] == true) {
-                continue;
+    if (message.author.bot == false) {
+        for (let key in remindlist) {
+            if (remindoptout.hasOwnProperty(key)) {
+                if (remindoptout[key] == true) {
+                    continue;
+                }
             }
-        }
-        if (message.author.id != key) {
-            if (remindlist[key].includes(message.channelId)) { 
-                let tarUser = client.users.cache.get(key);
-                tarUser.send("New message in <#" + message.channelId + "> from " + message.author.username + ": " + messageLink(message))
-                    .catch(() => botLogs.send("<@!221482385399742465> Could not DM " + tarUser.username + ".")); 
-                console.log("Reminder sent to " + client.users.cache.get(key).username + " for " + message.channel.name);
+            if (message.author.id != key) {
+                if (remindlist[key].includes(message.channelId)) { 
+                    let tarUser = client.users.cache.get(key);
+                    tarUser.send("New message in <#" + message.channelId + "> from " + message.author.username + ": " + messageLink(message))
+                        .catch(() => botLogs.send("<@!221482385399742465> Could not DM " + tarUser.username + ".")); 
+                    console.log("Reminder sent to " + client.users.cache.get(key).username + " for " + message.channel.name);
+                }
             }
         }
     }
