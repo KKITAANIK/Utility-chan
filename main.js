@@ -797,7 +797,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Usage: `u!roster `<@!221482385399742465>` ` or `u!roster HereToHelp#1941`\n\
         Description: View the roster of the mentioned user if they have one. You can use their discord username and discriminator if you don't want to ping them.");
         }
-        else if(helpMsg == "archive") {
+        else if (helpMsg == "archive") {
             message.channel.send("`u!archive`:\n\
         Usage: `u!archive #my-channel` or `u!archive ID:123456789012345678`\n\
         Description: Archives the given channel. This command allows users to manually archive channels that are on a user's remindlist.");
