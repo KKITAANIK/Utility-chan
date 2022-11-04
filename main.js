@@ -1245,6 +1245,111 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                 console.log('remindoptout.json saved');
             });
         }
+        else if (remindmsg == "sort") {
+            message.channel.send("Use `u!remind sort alpha` to sort your remindlist alphabetically, and `u!remind sort pos` to sort your remindlist by the channel's position on the sidebar.");
+        }
+        else if (remindmsg == "sort alpha" || remindmsg == "sort pos") {
+            if (remindlist.hasOwnProperty(message.author.id) == false) {
+                remindlist[message.author.id] = [];
+            }
+            for (let i = 0; i < remindlist[message.author.id].length; i++) {  
+                if (client.channels.cache.get(remindlist[message.author.id][i]) === undefined) {
+                    message.channel.send("I cannot sort a remindlist with deleted channels. Use `u!unremind deleted` to remove them.");
+                    return;
+                }
+            }
+            if (remindmsg == "sort alpha") {
+                await remindlist[message.author.id].sort(function(a, b){
+                    let achannel = client.channels.cache.get(a);
+                    let bchannel = client.channels.cache.get(b);
+                    if (achannel.guildId == bchannel.guildId) {
+                        return achannel.name.localeCompare(bchannel.name);
+                    }
+                    else {
+                        if (achannel.guildId < bchannel.guildId) {
+                            return -1;
+                        }
+                        else if (achannel.guildId > bchannel.guildId) {
+                            return 1;
+                        }
+                    }
+                });
+            }
+            else if (remindmsg == "sort pos") {
+                await remindlist[message.author.id].sort(function(a, b){
+                    let achannel = client.channels.cache.get(a);
+                    let bchannel = client.channels.cache.get(b);
+                    let apos;
+                    let bpos;
+                    if (achannel.position === undefined) {
+                        apos = achannel.parent.rawPosition;
+                    }
+                    else {
+                        apos = achannel.rawPosition;
+                    }
+                    if (bchannel.position === undefined) {
+                        bpos = bchannel.parent.rawPosition;
+                    }
+                    else {
+                        bpos = bchannel.rawPosition;
+                    }
+                    if (achannel.guildId == bchannel.guildId) {
+                        if (apos == bpos) {
+                            return achannel.name.localeCompare(bchannel.name);
+                        }
+                        else {
+                            if (apos < bpos) {
+                                return -1;
+                            }
+                            else if (apos > bpos) {
+                                return 1;
+                            }
+                        }
+                    }
+                    else {
+                        if (achannel.guildId < bchannel.guildId) {
+                            return -1;
+                        }
+                        else if (achannel.guildId > bchannel.guildId) {
+                            return 1;
+                        }
+                    }
+                });
+            }
+            fs.writeFile("remindlist.json", JSON.stringify(remindlist), function(err) {
+                if (err) throw err;
+                console.log('remindlist.json saved');
+            });
+            let outputmsg = "Your remindlist:\n";
+            for (let i = 0; i < remindlist[message.author.id].length; i++) {  
+                if (client.channels.cache.get(remindlist[message.author.id][i]) === undefined) {
+                    if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
+                        outputmsg += "<:blank:1026792857153048596>  ";
+                    }
+                    outputmsg += "#deleted-channel\n";
+                }
+                else {
+                    let channelCache = client.channels.cache.get(remindlist[message.author.id][i]);
+                    if (message.channel.type === ChannelType.DM) {
+                        if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
+                            outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                        }
+                        else {
+                            outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
+                        }
+                    }
+                    else if (channelCache.guild == message.guild) {
+                        if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
+                            outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                        }
+                        else {
+                            outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
+                        }
+                    }
+                }
+            }
+            splitMessage(message, outputmsg);
+        }
         else {
             if (remindlist.hasOwnProperty(message.author.id) == false) {
                 remindlist[message.author.id] = [];
