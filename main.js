@@ -31,6 +31,7 @@ var userrosters = {};
 var remindlist = {};
 var remindpings = {};
 var remindoptout = {};
+var unarchiveIgnore = [];
 const pacificOffset = -7;
 
 const SUFFIXES = {1: 'st', 2: 'nd', 3: 'rd', 4: 'th', 5: 'th', 6: 'th', 7: 'th', 8: 'th', 9: 'th', 0: 'th'};
@@ -57,7 +58,6 @@ const activities = ["Use [u!help] for help.",
     "[u!help full] and [u!help remind] can only be used in bot channels or DMs.",
     "#deleted-channel? See if a thread got archived.",
     "Consider making your brain open source, too.",
-    "69 KB. Apparently this is an achievement.",
     "Consider using [u!remind] to keep track of your threads.",
     "Calendar-chan is doing fine. She sleeps most of the time.",
     "My body was made by sheets. It's very comfortable.",
@@ -417,11 +417,26 @@ client.on("ready", () => {
 })
 
 client.on('threadUpdate', async (oldThread, newThread) => {
-    if (newThread.archived == true && newThread.guildId == '805756440752816158') {
-        await newThread.setArchived(false);
-        let msg = newThread.name + ' was unarchived.';
-        botLogs.send(msg);
-        console.log(msg);
+    if (unarchiveIgnore.includes(oldThread.id)) {
+        // pass
+    }
+    else if (newThread.archived == true) {
+        if (newThread.guildId == '805756440752816158') {
+            await newThread.setArchived(false);
+            let msg = newThread.name + ' was unarchived.';
+            botLogs.send(msg);
+            console.log(msg);
+        }
+        else {
+            for (let key in remindlist) {
+                if (remindlist[key].includes(oldThread.id)) { 
+                    await newThread.setArchived(false);
+                    let msg = newThread.name + ' was unarchived.';
+                    botLogs.send(msg);
+                    console.log(msg);
+                }
+            }
+        }
     }
 })
 
@@ -871,7 +886,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
     }
     else if (message.content.startsWith(prefix + 'suggest')) {
         const suggestion = message.content.slice(10).trim();
-        await serverSuggestions.send(suggestion + "\n\nSuggestion sent by <@!" + message.author.id + "> in <#" + message.channel.id + ">").then(suggestmsg => {
+        await serverSuggestions.send(suggestion + "\n\nSuggestion sent by <@!" + message.author.id + "> in <#" + message.channel.id + ">.").then(suggestmsg => {
             suggestmsg.react('<:yes:938908644202913872>');
             suggestmsg.react('<:neutral:938908656282529842>');
             suggestmsg.react('<:no:938908668362121216>');
@@ -969,6 +984,36 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
             resstring += " = **" + ressum.toString() + "**";
             console.log(resstring);
             message.channel.send(descstring + "\n" + resstring);
+        }
+    }
+    else if (message.content.startsWith(prefix + "archive")) {
+        if (message.author.bot) return;
+        let archivemsg = message.content.slice(9).trim();
+        if (archivemsg.substring(0,2) == "<#" || archivemsg.substring(0, 3) == "ID:") { // check for channel here
+            let archiveID;
+            if (archivemsg.substring(0,2) == "<#") {
+                archiveID = archivemsg.slice(2).trim().slice(0, -1); 
+            }
+            else if (archivemsg.substring(0, 3) == "ID:") {
+                archiveID = archivemsg.slice(3).trim();
+            }
+            if (client.channels.cache.get(archiveID) === undefined) {
+                message.channel.send("Channel not found.");
+            }
+            else if (client.channels.cache.get(archiveID).isThread() == false) {
+                message.channel.send("That channel is not a thread.");
+            }
+            else {
+                unarchiveIgnore.push(archiveID);
+                await client.channels.cache.get(archiveID).setArchived(true);
+                setTimeout(function(){ 
+                    unarchiveIgnore = unarchiveIgnore.splice(unarchiveIgnore.indexOf(archiveID), 1); 
+                    botLogs.send(client.channels.cache.get(archiveID).name + " was archived by " + message.author.username);
+                }, 1000);
+            }
+        }
+        else {
+            message.channel.send("Please either mention the channel directly (`#my-channel`), or use the channel ID (`ID:123456789012345678`). For a more detailed explanation, read this post <https://discord.com/channels/466063257472466944/544025844620853249/1025207876882534420>.");
         }
     }
     else if (message.content.startsWith(prefix + "unremind")) {
