@@ -65,7 +65,11 @@ const activities = ["Use [u!help] for help.",
     "Wondering if a channel is a good fit for [u!remind]? [u!help remind] has a few links to help.",
     "Bugs aren't fun for me, either.",
     "I'm actually almost a month older than Calendar-chan.",
-    "I have a birthday. It's September 17."];
+    "I have a birthday. It's September 17.",
+    "Use `u!remind sort` to sort your remindlist automatically.",
+    "Analog computers have existed at least as early as 100 BC.",
+    "The brain is just like a computer, or an aquaduct system. It depends on when you ask.",
+    "Things that don't think exist, too. It's just harder."];
 
 const readline = require('readline');
 const {google} = require('googleapis');
