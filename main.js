@@ -69,7 +69,8 @@ const activities = ["Use [u!help] for help.",
     "Use `u!remind sort` to sort your remindlist automatically.",
     "Analog computers have existed at least as early as 100 BC.",
     "The brain is just like a computer, or an aquaduct system. It depends on when you ask.",
-    "Things that don't think exist, too. It's just harder."];
+    "Things that don't think exist, too. It's just harder.",
+    "Use [u!archive] to archive channels that are on someone's remindlist."];
 
 const readline = require('readline');
 const {google} = require('googleapis');
@@ -620,14 +621,15 @@ Note that `u!help full` and `u!help remind` can only be used in bot channels or 
     ⁃ `remind`\n\
     ⁃ `unremind`\n\
     ⁃ `suggest`\n\
-    ⁃ `roster`")
+    ⁃ `roster`\n\
+    ⁃ `archive`")
         }
         else if (helpMsg == "categories") {
             message.channel.send("A list of the various command categories:\n\
     ⁃ `u!help basic`: Basic commands that don't take any parameters\n\
     ⁃ `u!help rng`: Commands that use random number generation (`u!choose` and `u!roll`)\n\
     ⁃ `u!help remind`: Details on the reminder system, and the commands `u!remind` and `u!unremind`\n\
-    ⁃ `u!help utility`: Miscellaneous parameter commands that fulfill server utility (`u!suggest` and `u!roster`)\n\
+    ⁃ `u!help utility`: Miscellaneous parameter commands that fulfill server utility (`u!suggest`, `u!roster`, and `u!archive`)\n\
     ⁃ `u!help features`: Various features that aren't associated with any commands");
         }
         else if (helpMsg == "full") {
@@ -668,8 +670,12 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Description: Adds all listed channels to your remindlist. If a channel is not valid, it will not be added. Each channel must be separated by a comma.\n\
         Usage: `u!remind track`\n\
         Description: Toggles response tracking for your remindlist. When response tracking is on, your remindlist will show a <:ping:1026739369995931650> next to any channels in which you did not send the last message. IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).\n\
-        Usage: `u!unremind DMs`\n\
-        Description: Toggles whether you receive DM reminders from Utility-chan when a new message is posted in channels on your remindlist.");
+        Usage: `u!remind DMs`\n\
+        Description: Toggles whether you receive DM reminders from Utility-chan when a new message is posted in channels on your remindlist.\n\
+        Usage: `u!remind sort alpha`\n\
+        Description: Sorts your remindlist in alphabetical order.\n\
+        Usage: `u!remind sort pos`\n\
+        Description: Sorts your remindlist by the channel's position on the sidebar. Threads in the same channel are sorted alphabetically.");
                 await message.channel.send("`u!unremind`:\n\
         Usage: `u!unremind #my-channel` or `u!remind ID:123456789012345678`\n\
         Description: Removes a channel from your remindlist.\n\
@@ -692,6 +698,8 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Description: Sets your roster message to `[message]`.\n\
         Usage: `u!roster `<@!221482385399742465>` ` or `u!roster HereToHelp#1941`\n\
         Description: View the roster of the mentioned user if they have one. You can use their discord username and discriminator if you don't want to ping them.\n\
+        Usage: `u!archive #my-channel` or `u!archive ID:123456789012345678`\n\
+        Description: Archives the given channel. This command allows users to manually archive channels that are on a user's remindlist.\n\
 <:blank:1026792857153048596>");
 
                 message.channel.send("**Features:**\n\
@@ -755,8 +763,12 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Description: Adds all listed channels to your remindlist. If a channel is not valid, it will not be added. Each channel must be separated by a comma.\n\
         Usage: `u!remind track`\n\
         Description: Toggles response tracking for your remindlist. When response tracking is on, your remindlist will show a <:ping:1026739369995931650> next to any channels in which you did not send the last message. IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).\n\
-        Usage: `u!unremind DMs`\n\
-        Description: Toggles whether you receive DM reminders from Utility-chan when a new message is posted in channels on your remindlist.");
+        Usage: `u!remind DMs`\n\
+        Description: Toggles whether you receive DM reminders from Utility-chan when a new message is posted in channels on your remindlist.\n\
+        Usage: `u!remind sort alpha`\n\
+        Description: Sorts your remindlist in alphabetical order.\n\
+        Usage: `u!remind sort pos`\n\
+        Description: Sorts your remindlist by the channel's position on the sidebar. Threads in the same channel are sorted alphabetically.");
                 message.channel.send("`u!unremind`:\n\
         Usage: `u!unremind #my-channel` or `u!remind ID:123456789012345678`\n\
         Description: Removes a channel from your remindlist.\n\
@@ -784,6 +796,11 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Description: Sets your roster message to `[message]`.\n\
         Usage: `u!roster `<@!221482385399742465>` ` or `u!roster HereToHelp#1941`\n\
         Description: View the roster of the mentioned user if they have one. You can use their discord username and discriminator if you don't want to ping them.");
+        }
+        else if(helpMsg == "archive") {
+            message.channel.send("`u!archive`:\n\
+        Usage: `u!archive #my-channel` or `u!archive ID:123456789012345678`\n\
+        Description: Archives the given channel. This command allows users to manually archive channels that are on a user's remindlist.");
         }
         else if (helpMsg == "basic") {
             message.channel.send("**Basic Commands:**\n\
@@ -821,7 +838,9 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Usage: `u!roster [message]`\n\
         Description: Sets your roster message to `[message]`.\n\
         Usage: `u!roster `<@!221482385399742465>` ` or `u!roster HereToHelp#1941`\n\
-        Description: View the roster of the mentioned user if they have one. You can use their discord username and discriminator if you don't want to ping them.");
+        Description: View the roster of the mentioned user if they have one. You can use their discord username and discriminator if you don't want to ping them.\n\
+        Usage: `u!archive #my-channel` or `u!archive ID:123456789012345678`\n\
+        Description: Archives the given channel. This command allows users to manually archive channels that are on a user's remindlist.");
         }
         else if (helpMsg == "features") {
             message.channel.send("**Features:**\n\
