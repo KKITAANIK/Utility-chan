@@ -66,11 +66,12 @@ const activities = ["Use [u!help] for help.",
     "Bugs aren't fun for me, either.",
     "I'm actually almost a month older than Calendar-chan.",
     "I have a birthday. It's September 17.",
-    "Use `u!remind sort` to sort your remindlist automatically.",
+    "Use [u!remind sort] to sort your remindlist automatically.",
     "Analog computers have existed at least as early as 100 BC.",
     "The brain is just like a computer, or an aquaduct system. It depends on when you ask.",
     "Things that don't think exist, too. It's just harder.",
-    "Use [u!archive] to archive channels that are on someone's remindlist."];
+    "Use [u!archive] to archive channels that are on someone's remindlist.",
+    "[u!remind sort rand] uses a Durstenfeld shuffle. It's O(n), because Adrian didn't write the code."];
 
 const readline = require('readline');
 const {google} = require('googleapis');
@@ -675,7 +676,9 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Usage: `u!remind sort alpha`\n\
         Description: Sorts your remindlist in alphabetical order.\n\
         Usage: `u!remind sort pos`\n\
-        Description: Sorts your remindlist by the channel's position on the sidebar. Threads in the same channel are sorted alphabetically.");
+        Description: Sorts your remindlist by the channel's position on the sidebar. Threads in the same channel are sorted alphabetically.\n\
+        Usage: `u!remind sort rand`\n\
+        Description: Randomly shuffles the order of your remindlist.");
                 await message.channel.send("`u!unremind`:\n\
         Usage: `u!unremind #my-channel` or `u!remind ID:123456789012345678`\n\
         Description: Removes a channel from your remindlist.\n\
@@ -768,7 +771,9 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Usage: `u!remind sort alpha`\n\
         Description: Sorts your remindlist in alphabetical order.\n\
         Usage: `u!remind sort pos`\n\
-        Description: Sorts your remindlist by the channel's position on the sidebar. Threads in the same channel are sorted alphabetically.");
+        Description: Sorts your remindlist by the channel's position on the sidebar. Threads in the same channel are sorted alphabetically.\n\
+        Usage: `u!remind sort rand`\n\
+        Description: Randomly shuffles the order of your remindlist.");
                 message.channel.send("`u!unremind`:\n\
         Usage: `u!unremind #my-channel` or `u!remind ID:123456789012345678`\n\
         Description: Removes a channel from your remindlist.\n\
@@ -1269,17 +1274,17 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
             });
         }
         else if (remindmsg.startsWith("sort")) {
-            if (remindmsg == "sort alpha" || remindmsg == "sort pos") {
+            if (remindmsg == "sort alpha" || remindmsg == "sort pos" || remindmsg == "sort rand") {
                 if (remindlist.hasOwnProperty(message.author.id) == false) {
                     remindlist[message.author.id] = [];
                 }
                 for (let i = 0; i < remindlist[message.author.id].length; i++) {  
                     if (client.channels.cache.get(remindlist[message.author.id][i]) === undefined) {
-                        message.channel.send("I cannot sort a remindlist with deleted channels. Use `u!unremind deleted` to remove them.");
+                        message.channel.send("I can't sort a remindlist with deleted channels. Use `u!unremind deleted` to remove them.");
                         return;
                     }
                 }
-                if (remindmsg == "sort alpha" || remindmsg == "sort alphabet" || remindmsg == "sort alphabetical") {
+                if (remindmsg == "sort alpha") {
                     await remindlist[message.author.id].sort(function(a, b){
                         let achannel = client.channels.cache.get(a);
                         let bchannel = client.channels.cache.get(b);
@@ -1296,7 +1301,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                         }
                     });
                 }
-                else if (remindmsg == "sort pos" || remindmsg == "sort position") {
+                else if (remindmsg == "sort pos") {
                     await remindlist[message.author.id].sort(function(a, b){
                         let achannel = client.channels.cache.get(a);
                         let bchannel = client.channels.cache.get(b);
@@ -1337,6 +1342,14 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                         }
                     });
                 }
+                else if (remindmsg == "sort rand") {
+                    let remindCopy = [...remindlist[message.author.id]];
+                    for (let i = remindCopy.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [remindCopy[i], remindCopy[j]] = [remindCopy[j], remindCopy[i]];
+                    }
+                    remindlist[message.author.id] = [...remindCopy];
+                }
                 fs.writeFile("remindlist.json", JSON.stringify(remindlist), function(err) {
                     if (err) throw err;
                     console.log('remindlist.json saved');
@@ -1372,7 +1385,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                 splitMessage(message, outputmsg);
             }
             else {
-                message.channel.send("Use `u!remind sort alpha` to sort your remindlist alphabetically, and `u!remind sort pos` to sort your remindlist by the channel's position on the sidebar.");
+                message.channel.send("Use `u!remind sort alpha` to sort your remindlist alphabetically, and `u!remind sort pos` to sort your remindlist by the channel's position on the sidebar. If you want to randomly shuffle your remindlist, you can use `u!remind sort rand`.");
             }
         }  
         else {
