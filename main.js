@@ -818,6 +818,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Description: Sets your roster message to `[message]`.\n\
         Usage: `u!roster `<@!221482385399742465>` ` or `u!roster HereToHelp#1941`\n\
         Description: View the roster of the mentioned user if they have one. You can use their discord username and discriminator if you don't want to ping them.\n\
+`u!archive`:\n\
         Usage: `u!archive #my-channel` or `u!archive ID:123456789012345678`\n\
         Description: Archives the given channel. This command allows users to manually archive channels that are on a user's remindlist.\n\
 <:blank:1026792857153048596>");
@@ -968,6 +969,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Description: Sets your roster message to `[message]`.\n\
         Usage: `u!roster `<@!221482385399742465>` ` or `u!roster HereToHelp#1941`\n\
         Description: View the roster of the mentioned user if they have one. You can use their discord username and discriminator if you don't want to ping them.\n\
+`u!archive`:\n\
         Usage: `u!archive #my-channel` or `u!archive ID:123456789012345678`\n\
         Description: Archives the given channel. This command allows users to manually archive channels that are on a user's remindlist.");
         }
