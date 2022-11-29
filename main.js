@@ -368,14 +368,14 @@ async function checkRemindMsg(channelCache, message, channelId) {
         
         if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
             if (lastMessage.author.id !== message.author.id) {
-                addStr += "<:ping:1026739369995931650>";
+                addStr += "<:ping:1026739369995931650>  ";
             }
             else {
-                addStr += "<:blank:1026792857153048596>";
+                addStr += "<:blank:1026792857153048596>  ";
             }
         }
                             
-        addStr += "  <#" + channelId + ">";
+        addStr += "<#" + channelId + ">";
         
         if (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true) {
             addStr += "  <t:" + Math.floor(lastMessage.createdTimestamp/1000) + ":R>";
@@ -384,10 +384,10 @@ async function checkRemindMsg(channelCache, message, channelId) {
         addStr += "\n";
     } catch (error) {
         if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-            addStr += "<:blank:1026792857153048596>";
+            addStr += "<:blank:1026792857153048596>  ";
         }
 
-        addStr += "  <#" + channelId + ">";
+        addStr += "<#" + channelId + ">";
     }
 
     return addStr;
