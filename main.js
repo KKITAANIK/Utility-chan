@@ -925,6 +925,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
             .catch(console.error);
             console.log("Edited a message to " + editContent);
         });
+        message.delete();
     }
     else if (message.content.startsWith(prefix + 'delete')) {
         if (message.author.bot) return;
@@ -935,6 +936,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
             replyMessage.delete()
             console.log("Deleted message");
         });
+        message.delete();
     }
     else if (message.content.startsWith(prefix + 'say')) {
         if (message.author.id !== "221482385399742465") return;
