@@ -72,7 +72,8 @@ const activities = ["Use [u!help] for help.",
     "The brain is just like a computer, or an aquaduct system. It depends on when you ask.",
     "Things that don't think exist, too. It's just harder.",
     "Use [u!archive] to archive channels that are on someone's remindlist.",
-    "[u!remind sort rand] uses a Durstenfeld shuffle. It's O(n), because Adrian didn't write the code."];
+    "[u!remind sort rand] uses a Durstenfeld shuffle. It's O(n), because Adrian didn't write the code.",
+    "Quantum Bogosort is now implemented."];
 
 const readline = require('readline');
 const {google} = require('googleapis');
@@ -1332,9 +1333,13 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
             });
         }
         else if (remindmsg.startsWith("sort")) {
-            if (remindmsg == "sort alpha" || remindmsg == "sort pos" || remindmsg == "sort rand" || remindmsg == "sort time" || remindmsg == "sort time desc") {
+            if (remindmsg == "sort alpha" || remindmsg == "sort pos" || remindmsg == "sort rand" || remindmsg == "sort time" || remindmsg == "sort time desc" || remindmsg == "sort quantum bogo") {
                 if (remindlist.hasOwnProperty(message.author.id) == false) {
                     remindlist[message.author.id] = [];
+                }
+                if (remindmsg == "sort quantum bogo") {
+                    message.channel.send("Entropy invalid. Please destroy your universe and try again.");
+                    return;
                 }
                 for (let i = 0; i < remindlist[message.author.id].length; i++) {  
                     if (client.channels.cache.get(remindlist[message.author.id][i]) === undefined) {
