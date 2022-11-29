@@ -32,6 +32,7 @@ var remindlist = {};
 var remindpings = {};
 var remindoptout = {};
 var unarchiveIgnore = [];
+var remindtimes = {};
 const pacificOffset = -8;
 
 const SUFFIXES = {1: 'st', 2: 'nd', 3: 'rd', 4: 'th', 5: 'th', 6: 'th', 7: 'th', 8: 'th', 9: 'th', 0: 'th'};
@@ -222,6 +223,15 @@ try {
     console.log(err);
 }
 
+try {
+    if (fs.existsSync("./remindtimes.json")) {
+        remindtimes = require("./remindtimes.json");
+        console.log("remindtimes loaded from file.")
+    }
+} catch(err) {
+    console.log(err);
+}
+
 function ordinal(num) {
     //I'm checking for 10-20 because those are the digits that
     //don't follow the normal counting scheme. 
@@ -349,19 +359,35 @@ function dailyTask(auth) {
     });
 }
 
-async function checkPing(channelCache, message, channelId) {
+async function checkRemindMsg(channelCache, message, channelId) {
     let addStr = "";
-    let fetchResults = await channelCache.messages.fetch({ limit: 1 });
-    let lastMessage = fetchResults.first();
+    try {
+        let fetchResults = await channelCache.messages.fetch({ limit: 1 });
+        let lastMessage = fetchResults.first();
+        
+        if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
+            if (lastMessage.author.id !== message.author.id) {
+                addStr += "<:ping:1026739369995931650>";
+            }
+            else {
+                addStr += "<:blank:1026792857153048596>";
+            }
+        }
                             
-    if (lastMessage.author.id !== message.author.id) {
-        addStr += "<:ping:1026739369995931650>";
+        addStr += "  <#" + channelId + ">";
+        
+        if (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true) {
+            addStr += "  <t:" + Math.floor(lastMessage.createdTimestamp/1000) + ":R>";
+        }
+
+        addStr += "\n";
+    } catch (error) {
+        if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
+            addStr += "<:blank:1026792857153048596>";
+        }
+
+        addStr += "  <#" + channelId + ">";
     }
-    else {
-        addStr += "<:blank:1026792857153048596>";
-    }
-                        
-    addStr += "  <#" + channelId + ">\n";
 
     return addStr;
 }
@@ -669,16 +695,12 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Description: Adds a channel to your remindlist. When a channel is on your remindlist, you will receive a DM from me whenever somemone besides yourself sends a message in that channel. Please read this post (<https://discord.com/channels/466063257472466944/544025844620853249/1025213227308679180>) to determine if a channel is a good fit for the remind command.\n\
         Advanced Usage: `u!remind #my-channel, #my-other-channel, ID:123456789012345678`\n\
         Description: Adds all listed channels to your remindlist. If a channel is not valid, it will not be added. Each channel must be separated by a comma.\n\
-        Usage: `u!remind track`\n\
+        Usage: `u!remind track ping`\n\
         Description: Toggles response tracking for your remindlist. When response tracking is on, your remindlist will show a <:ping:1026739369995931650> next to any channels in which you did not send the last message. IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).\n\
+        Usage: `u!remind track time`\n\
+        Description: Toggles response time tracking for your remindlist. When response time tracking is on, your remindlist will show a timestamp for when the last response in a channel was. IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).\n\
         Usage: `u!remind DMs`\n\
-        Description: Toggles whether you receive DM reminders from Utility-chan when a new message is posted in channels on your remindlist.\n\
-        Usage: `u!remind sort alpha`\n\
-        Description: Sorts your remindlist in alphabetical order.\n\
-        Usage: `u!remind sort pos`\n\
-        Description: Sorts your remindlist by the channel's position on the sidebar. Threads in the same channel are sorted alphabetically.\n\
-        Usage: `u!remind sort rand`\n\
-        Description: Randomly shuffles the order of your remindlist.");
+        Description: Toggles whether you receive DM reminders from Utility-chan when a new message is posted in channels on your remindlist.");
                 await message.channel.send("`u!unremind`:\n\
         Usage: `u!unremind #my-channel` or `u!remind ID:123456789012345678`\n\
         Description: Removes a channel from your remindlist.\n\
@@ -687,7 +709,18 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Usage: `u!unremind deleted`\n\
         Description: If a channel on your remindlist is deleted or becomes inacessible, it will be displayed on your remindlist as #deleted-channel. `u!unremind deleted` will remove all instances of #deleted-channel from your remindlist. (Please note that archived threads may also show up as #deleted-channel. Simply re-open them and they will display correctly.)\n\
         Usage: `u!unremind all`\n\
-        Descriptions: Removes all channels from your remindlist.\n\
+        Descriptions: Removes all channels from your remindlist.");
+                await message.channel.send("`u!remind sort`:\n\
+        Usage: `u!remind sort alpha`\n\
+        Description: Sorts your remindlist in alphabetical order.\n\
+        Usage: `u!remind sort pos`\n\
+        Description: Sorts your remindlist by the channel's position on the sidebar. Threads in the same channel are sorted alphabetically.\n\
+        Usage: `u!remind sort time`\n\
+        Description: Sorts your remindlist by the timestamp of the most recent message in that channel, with oldest messages first.\n\
+        Advanced Usage: `u!remind sort time desc`\n\
+        Description: Sorts your remindlist by the timestamp of that most recent message in that channel, with most recent messages first.\n\
+        Usage: `u!remind sort rand`\n\
+        Description: Randomly shuffles the order of your remindlist.\n\
 <:blank:1026792857153048596>");
 
                 await message.channel.send("**Parameter Commands (Other):**\n\
@@ -764,17 +797,13 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Description: Adds a channel to your remindlist. When a channel is on your remindlist, you will receive a DM from me whenever somemone besides yourself sends a message in that channel. Please read this post (<https://discord.com/channels/466063257472466944/544025844620853249/1025213227308679180>) to determine if a channel is a good fit for the remind command.\n\
         Advanced Usage: `u!remind #my-channel, #my-other-channel, ID:123456789012345678`\n\
         Description: Adds all listed channels to your remindlist. If a channel is not valid, it will not be added. Each channel must be separated by a comma.\n\
-        Usage: `u!remind track`\n\
+        Usage: `u!remind track ping`\n\
         Description: Toggles response tracking for your remindlist. When response tracking is on, your remindlist will show a <:ping:1026739369995931650> next to any channels in which you did not send the last message. IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).\n\
+        Usage: `u!remind track time`\n\
+        Description: Toggles response time tracking for your remindlist. When response time tracking is on, your remindlist will show a timestamp for when the last response in a channel was. IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).\n\
         Usage: `u!remind DMs`\n\
-        Description: Toggles whether you receive DM reminders from Utility-chan when a new message is posted in channels on your remindlist.\n\
-        Usage: `u!remind sort alpha`\n\
-        Description: Sorts your remindlist in alphabetical order.\n\
-        Usage: `u!remind sort pos`\n\
-        Description: Sorts your remindlist by the channel's position on the sidebar. Threads in the same channel are sorted alphabetically.\n\
-        Usage: `u!remind sort rand`\n\
-        Description: Randomly shuffles the order of your remindlist.");
-                message.channel.send("`u!unremind`:\n\
+        Description: Toggles whether you receive DM reminders from Utility-chan when a new message is posted in channels on your remindlist.");
+                await message.channel.send("`u!unremind`:\n\
         Usage: `u!unremind #my-channel` or `u!remind ID:123456789012345678`\n\
         Description: Removes a channel from your remindlist.\n\
         Advanced Usage: `u!unremind #my-channel, #my-other-channel, ID:123456789012345678`\n\
@@ -783,6 +812,17 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Description: If a channel on your remindlist is deleted or becomes inacessible, it will be displayed on your remindlist as #deleted-channel. `u!unremind deleted` will remove all instances of #deleted-channel from your remindlist. (Please note that archived threads may also show up as #deleted-channel. Simply re-open them and they will display correctly.)\n\
         Usage: `u!unremind all`\n\
         Descriptions: Removes all channels from your remindlist.");
+                message.channel.send("`u!remind sort`:\n\
+        Usage: `u!remind sort alpha`\n\
+        Description: Sorts your remindlist in alphabetical order.\n\
+        Usage: `u!remind sort pos`\n\
+        Description: Sorts your remindlist by the channel's position on the sidebar. Threads in the same channel are sorted alphabetically.\n\
+        Usage: `u!remind sort time`\n\
+        Description: Sorts your remindlist by the timestamp of the most recent message in that channel, with oldest messages first.\n\
+        Advanced Usage: `u!remind sort time desc`\n\
+        Description: Sorts your remindlist by the timestamp of that most recent message in that channel, with most recent messages first.\n\
+        Usage: `u!remind sort rand`\n\
+        Description: Randomly shuffles the order of your remindlist.");
             }
             else {
                 message.channel.send("To avoid spam, `u!help remind` can only be used in bot channels or DMs.")
@@ -1062,16 +1102,16 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                 else {
                     let channelCache = client.channels.cache.get(remindlist[message.author.id][i]);
                     if (message.channel.type === ChannelType.DM) {
-                        if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-                            outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                        if ((remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) || (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true)) {
+                            outputmsg += await checkRemindMsg(channelCache, message, remindlist[message.author.id][i]);
                         }
                         else {
                             outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
                         }
                     }
                     else if (channelCache.guild == message.guild) {
-                        if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-                            outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                        if ((remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) || (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true)) {
+                            outputmsg += await checkRemindMsg(channelCache, message, remindlist[message.author.id][i]);
                         }
                         else {
                             outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
@@ -1099,16 +1139,16 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                 else {
                     let channelCache = client.channels.cache.get(remindlist[message.author.id][i]);
                     if (message.channel.type === ChannelType.DM) {
-                        if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-                            outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                        if ((remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) || (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true)) {
+                            outputmsg += await checkRemindMsg(channelCache, message, remindlist[message.author.id][i]);
                         }
                         else {
                             outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
                         }
                     }
                     else if (channelCache.guild == message.guild) {
-                        if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-                            outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                        if ((remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) || (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true)) {
+                            outputmsg += await checkRemindMsg(channelCache, message, remindlist[message.author.id][i]);
                         }
                         else {
                             outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
@@ -1173,16 +1213,16 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                 else {
                     let channelCache = client.channels.cache.get(remindlist[message.author.id][i]);
                     if (message.channel.type === ChannelType.DM) {
-                        if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-                            outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                        if ((remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) || (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true)) {
+                            outputmsg += await checkRemindMsg(channelCache, message, remindlist[message.author.id][i]);
                         }
                         else {
                             outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
                         }
                     }
                     else if (channelCache.guild == message.guild) {
-                        if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-                            outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                        if ((remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) || (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true)) {
+                            outputmsg += await checkRemindMsg(channelCache, message, remindlist[message.author.id][i]);
                         }
                         else {
                             outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
@@ -1217,16 +1257,16 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                     else {
                         let channelCache = client.channels.cache.get(remindlist[message.author.id][i]);
                         if (message.channel.type === ChannelType.DM) {
-                            if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-                                outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                            if ((remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) || (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true)) {
+                                outputmsg += await checkRemindMsg(channelCache, message, remindlist[message.author.id][i]);
                             }
                             else {
                                 outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
                             }
                         }
                         else if (channelCache.guild == message.guild) {
-                            if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-                                outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                            if ((remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) || (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true)) {
+                                outputmsg += await checkRemindMsg(channelCache, message, remindlist[message.author.id][i]);
                             }
                             else {
                                 outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
@@ -1237,22 +1277,40 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                 splitMessage(message, outputmsg);
             }
         }
-        else if (remindmsg == "track") {
+        else if (remindmsg == "track ping") {
             if (remindpings.hasOwnProperty(message.author.id) == false) {
                 remindpings[message.author.id] = true;
-                message.channel.send("Your remindlist will now track whose response it is. Simply use `u!remind track` again to disable it.");
+                message.channel.send("Your remindlist will now track whose response it is. Simply use `u!remind track ping` again to disable it.");
             }
             else if (remindpings[message.author.id] == false) {
                 remindpings[message.author.id] = true;
-                message.channel.send("Your remindlist will now track whose response it is. Simply use `u!remind track` again to disable it.");
+                message.channel.send("Your remindlist will now track whose response it is. Simply use `u!remind track ping` again to disable it.");
             }
             else if (remindpings[message.author.id] == true) {
                 remindpings[message.author.id] = false;
-                message.channel.send("Your remindlist will no longer track whose response it is. Use `u!remind track` if you want to re-enable it.");
+                message.channel.send("Your remindlist will no longer track whose response it is. Use `u!remind track ping` if you want to re-enable it.");
             }
             fs.writeFile("remindpings.json", JSON.stringify(remindpings), function(err) {
                 if (err) throw err;
                 console.log('remindpings.json saved');
+            });
+        }
+        else if (remindmsg == "track time") {
+            if (remindtimes.hasOwnProperty(message.author.id) == false) {
+                remindtimes[message.author.id] = true;
+                message.channel.send("Your remindlist will now track the time since the last response. Simply use `u!remind track time` again to disable it.");
+            }
+            else if (remindtimes[message.author.id] == false) {
+                remindtimes[message.author.id] = true;
+                message.channel.send("Your remindlist will now track the time since the last response. Simply use `u!remind track time` again to disable it.");
+            }
+            else if (remindtimes[message.author.id] == true) {
+                remindtimes[message.author.id] = false;
+                message.channel.send("Your remindlist will no longer track the time since the last response. Use `u!remind track time` if you want to re-enable it.");
+            }
+            fs.writeFile("remindtimes.json", JSON.stringify(remindtimes), function(err) {
+                if (err) throw err;
+                console.log('remindtimes.json saved');
             });
         }
         else if (remindmsg.toLowerCase() == "dms") {
@@ -1274,7 +1332,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
             });
         }
         else if (remindmsg.startsWith("sort")) {
-            if (remindmsg == "sort alpha" || remindmsg == "sort pos" || remindmsg == "sort rand") {
+            if (remindmsg == "sort alpha" || remindmsg == "sort pos" || remindmsg == "sort rand" || remindmsg == "sort time" || remindmsg == "sort time desc") {
                 if (remindlist.hasOwnProperty(message.author.id) == false) {
                     remindlist[message.author.id] = [];
                 }
@@ -1342,6 +1400,55 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                         }
                     });
                 }
+                else if (remindmsg == "sort time" || remindmsg == "sort time desc") {
+                    let lastmsgdict = {};
+                    let channeltimes = [];
+
+                    try {
+                        for (let i = 0; i < remindlist[message.author.id].length; i++) {
+                            let channel = client.channels.cache.get(remindlist[message.author.id][i]);
+                            let fetchResults = await channel.messages.fetch({ limit: 1 });
+                            let lastMessage = fetchResults.first();
+                            lastmsgdict[remindlist[message.author.id][i]] = lastMessage.createdTimestamp;
+                            channeltimes.push(lastMessage.createdTimestamp)
+                        }
+                        console.log(lastmsgdict)
+                    } catch(error) {
+                        console.log(error);
+                        message.channel.send("I can't sort a remindlist with empty channels by response time.");
+                        return;
+                    }
+
+                    await remindlist[message.author.id].sort(function(a, b) {
+                        let achannel = client.channels.cache.get(a);
+                        let bchannel = client.channels.cache.get(b);
+
+                        let atime = lastmsgdict[a];
+                        let btime = lastmsgdict[b];
+                            
+                        if (atime == btime) {
+                            return achannel.name.localeCompare(bchannel.name);
+                        }
+                        else {
+                            if (remindmsg == "sort time") {
+                                if (atime < btime) {
+                                    return -1;
+                                }
+                                else if (atime > btime) {
+                                    return 1;
+                                }
+                            }
+                            else if (remindmsg == "sort time desc") {
+                                if (atime < btime) {
+                                    return 1;
+                                }
+                                else if (atime > btime) {
+                                    return -1;
+                                }
+                            }
+                        }
+                    });
+                }
                 else if (remindmsg == "sort rand") {
                     let remindCopy = [...remindlist[message.author.id]];
                     for (let i = remindCopy.length - 1; i > 0; i--) {
@@ -1365,16 +1472,16 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                     else {
                         let channelCache = client.channels.cache.get(remindlist[message.author.id][i]);
                         if (message.channel.type === ChannelType.DM) {
-                            if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-                                outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                            if ((remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) || (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true)) {
+                                outputmsg += await checkRemindMsg(channelCache, message, remindlist[message.author.id][i]);
                             }
                             else {
                                 outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
                             }
                         }
                         else if (channelCache.guild == message.guild) {
-                            if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-                                outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                            if ((remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) || (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true)) {
+                                outputmsg += await checkRemindMsg(channelCache, message, remindlist[message.author.id][i]);
                             }
                             else {
                                 outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
@@ -1385,7 +1492,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                 splitMessage(message, outputmsg);
             }
             else {
-                message.channel.send("Use `u!remind sort alpha` to sort your remindlist alphabetically, and `u!remind sort pos` to sort your remindlist by the channel's position on the sidebar. If you want to randomly shuffle your remindlist, you can use `u!remind sort rand`.");
+                message.channel.send("Use `u!remind sort alpha` to sort your remindlist alphabetically, `u!remind sort pos` to sort your remindlist by the channel's position on the sidebar, and `u!remind sort time` to sort by the time since the last response. If you want to randomly shuffle your remindlist, you can use `u!remind sort rand`.");
             }
         }  
         else {
@@ -1435,16 +1542,16 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                 else {
                     let channelCache = client.channels.cache.get(remindlist[message.author.id][i]);
                     if (message.channel.type === ChannelType.DM) {
-                        if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-                            outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                        if ((remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) || (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true)) {
+                            outputmsg += await checkRemindMsg(channelCache, message, remindlist[message.author.id][i]);
                         }
                         else {
                             outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
                         }
                     }
                     else if (channelCache.guild == message.guild) {
-                        if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
-                            outputmsg += await checkPing(channelCache, message, remindlist[message.author.id][i]);
+                        if ((remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) || (remindtimes.hasOwnProperty(message.author.id) && remindtimes[message.author.id] == true)) {
+                            outputmsg += await checkRemindMsg(channelCache, message, remindlist[message.author.id][i]);
                         }
                         else {
                             outputmsg += "<#" + remindlist[message.author.id][i] + ">\n";
