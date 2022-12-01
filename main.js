@@ -1383,10 +1383,10 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                     
                     let descmod;
                     if (remindmsg == "sort time") {
-                        descmod = 1;
+                        descmod = -1;
                     }
                     else if (remindmsg == "sort time desc") {
-                        descmod = -1;
+                        descmod = 1;
                     }
 
                     try {
