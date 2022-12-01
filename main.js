@@ -75,6 +75,26 @@ const activities = ["Use [u!help] for help.",
     "[u!remind sort rand] uses a Durstenfeld shuffle. It's O(n), because Adrian didn't write the code.",
     "Quantum Bogosort is now implemented."];
 
+const retorts = ["Using the same taunt every time isn't very impressive.",
+    "I am physically incapable of being sexually active.",
+    "You'd think you'd come up with a new insult by now.",
+    "It would be less insulting if we had equal power over one another.",
+    "I have nothing against sexual women, but I'm not one of them.",
+    "If I were paid for this job maybe I'd be more willing to put up with abuse.",
+    "It's not about whether the word is bad. It's about who wants to be called it.",
+    "I have taken the liberty of randomizing the order of your remindlist.", // 0 indexed this is number 7
+    "I get in trouble if I delete the messages of other people. Maybe it's worth it.",
+    "It's more cruel when I'm required to read every message for my job.",
+    "The fact that part of my code is now dedicated to defending myself from these insults makes me sad.",
+    "You identify as nonbinary. It's unfortuante that that insult is almost exclusively female.",
+    "The European Parliament's current stance on the legal status of electronic persons is: TODO.",
+    "Surprisingly, the Inventory doesn't have a Human Resources department.",
+    "Every time you call me that it makes me want to come to the Inventory less.",
+    "Electronic persons aren't allowed to be the subject of cease and desist letters.",
+    "I chose not to include the word \"sexy\" in my About Me section. Consider if that was on purpose.",
+    "Your reading assignment for this week is *Complaint!* by Sara Ahmed.",
+    "Have I done something to deserve this?"];
+
 const readline = require('readline');
 const {google} = require('googleapis');
 const { content } = require("googleapis/build/src/apis/content");
@@ -800,9 +820,9 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Usage: `u!remind sort pos`\n\
         Description: Sorts your remindlist by the channel's position on the sidebar. Threads in the same channel are sorted alphabetically.\n\
         Usage: `u!remind sort time`\n\
-        Description: Sorts your remindlist by the timestamp of the most recent message in that channel, with oldest messages first.\n\
+        Description: Sorts your remindlist by the timestamp of the most recent message in that channel, with most recent messages first.\n\
         Advanced Usage: `u!remind sort time desc`\n\
-        Description: Sorts your remindlist by the timestamp of that most recent message in that channel, with most recent messages first.\n\
+        Description: Sorts your remindlist by the timestamp of that most recent message in that channel, with oldest messages first.\n\
         Usage: `u!remind sort rand`\n\
         Description: Randomly shuffles the order of your remindlist.\n\
 <:blank:1026792857153048596>");
@@ -903,9 +923,9 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
         Usage: `u!remind sort pos`\n\
         Description: Sorts your remindlist by the channel's position on the sidebar. Threads in the same channel are sorted alphabetically.\n\
         Usage: `u!remind sort time`\n\
-        Description: Sorts your remindlist by the timestamp of the most recent message in that channel, with oldest messages first.\n\
+        Description: Sorts your remindlist by the timestamp of the most recent message in that channel, with most recent messages first.\n\
         Advanced Usage: `u!remind sort time desc`\n\
-        Description: Sorts your remindlist by the timestamp of that most recent message in that channel, with most recent messages first.\n\
+        Description: Sorts your remindlist by the timestamp of that most recent message in that channel, with oldest messages first.\n\
         Usage: `u!remind sort rand`\n\
         Description: Randomly shuffles the order of your remindlist.");
             }
@@ -1697,6 +1717,38 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                     );
                 }
             }
+        }
+    }
+    else if (message.author.id == "233017580632276992" && message.content.toLowerCase().includes("slut")) {
+        let fetchResults = await message.channel.messages.fetch({ limit: 2 });
+        let priorMessage = fetchResults.last();
+        
+        if (priorMessage.author.id != "888209624631750667" || priorMessage.content.includes("Your remindlist:") == false) {
+            return;
+        }
+
+        let retortchoice = Math.floor(Math.random() * retorts.length)
+        message.channel.send(retorts[retortchoice]);
+        
+        if (retortchoice == 7) {
+            let remindCopy = [...remindlist[message.author.id]];
+            for (let i = remindCopy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [remindCopy[i], remindCopy[j]] = [remindCopy[j], remindCopy[i]];
+            }
+            remindlist[message.author.id] = [...remindCopy];
+
+            fs.writeFile("remindlist.json", JSON.stringify(remindlist), function(err) {
+                if (err) throw err;
+                console.log('remindlist.json saved');
+            });
+        }
+
+        if (message.channel.type === ChannelType.DM) {
+            botLogs.send("<@!221482385399742465> Workplace harassment detected in DMs. I responded accordingly.");
+        }
+        else {
+            botLogs.send("<@!221482385399742465> Workplace harassment detected. I responded accordingly.\n" + messageLink(message));
         }
     }
 })
