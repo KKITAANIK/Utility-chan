@@ -499,7 +499,7 @@ async function checkRemindMsg(channelCache, message, channelId) {
 
 async function splitMessage(message, content) {
     if (content.length < 2000) {
-        message.channel.send(content);
+        message.channel.send(content.replace("¶", ""));
     }
     else {
         let newOutput = [];
