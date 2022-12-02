@@ -73,7 +73,8 @@ const activities = ["Use [u!help] for help.",
     "Things that don't think exist, too. It's just harder.",
     "Use [u!archive] to archive channels that are on someone's remindlist.",
     "[u!remind sort rand] uses a Durstenfeld shuffle. It's O(n), because Adrian didn't write the code.",
-    "Quantum Bogosort is now implemented."];
+    "Quantum Bogosort is now implemented.",
+    "A font is the closest thing I have to a voice, but I never see it."];
 
 const retorts = ["Using the same taunt every time isn't very impressive.",
     "I am physically incapable of being sexually active.",
@@ -424,7 +425,7 @@ async function SendRemindlist(message) {
                 let prevchannel = client.channels.cache.get(remindlist[message.author.id][i - 1]);
 
                 if (nowchannel.guildId != prevchannel.guildId) {
-                    outputmsg += "\n__" + nowchannel.guild.name + "__\n"
+                    outputmsg += "¶\n__" + nowchannel.guild.name + "__\n"
                 }
             }
         }
@@ -506,13 +507,19 @@ async function splitMessage(message, content) {
         let messageSplit = content.split('\n');
         let i = 0;
         for (let j = 0; j < messageSplit.length; j++) {
-            messageSplit[j] += "\n";
-            if ((newOutput[i] + messageSplit[j]).length < 2000) {
-                newOutput[i] += messageSplit[j];
+            if (messageSplit[j] == "¶") {
+                newOutput.push("");
+                i++;
             }
             else {
-                newOutput.push(messageSplit[j]);
-                i++;
+                messageSplit[j] += "\n";
+                if ((newOutput[i] + messageSplit[j]).length < 2000) {
+                    newOutput[i] += messageSplit[j];
+                }
+                else {
+                    newOutput.push(messageSplit[j]);
+                    i++;
+                }
             }
         }
         for (let k = 0; k < newOutput.length; k++) {
