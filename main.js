@@ -661,9 +661,14 @@ client.on('messageCreate', async message => {
             if (message.author.id != key) {
                 if (remindlist[key].includes(message.channelId)) { 
                     let tarUser = client.users.cache.get(key);
-                    tarUser.send("New message in <#" + message.channelId + "> from " + message.author.username + ":\n" + messageLink(message))
-                        .catch(() => botLogs.send("<@!221482385399742465> Could not DM " + tarUser.username + ".")); 
-                    console.log("Reminder sent to " + client.users.cache.get(key).username + " for " + message.channel.name);
+                    if (remindtimes.hasOwnProperty(key) && remindtimes[key] == true) {
+                        tarUser.send("New message in <#" + message.channelId + "> <t:" + Math.floor(message.createdTimestamp/1000) + ":R> from " + message.author.username + ":\n" + messageLink(message))
+                            .catch(() => botLogs.send("<@!221482385399742465> Could not DM " + tarUser.username + "."));
+                    }
+                    else {
+                        tarUser.send("New message in <#" + message.channelId + "> from " + message.author.username + ":\n" + messageLink(message))
+                            .catch(() => botLogs.send("<@!221482385399742465> Could not DM " + tarUser.username + ".")); 
+                    }
                 }
             }
         }
