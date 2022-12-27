@@ -1282,6 +1282,11 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                 SendRemindlist(message);
             }
         }
+        else if (remindmsg == "track") {
+            message.channel.send("Use `u!remind track ping` to toggle response tracking for your remindlist. When response tracking is on, your remindlist will show a <:ping:1026739369995931650> next to any channels in which you did not send the last message.\n\
+Use `u!remind track time` to toggle timestamp tracking for your remindlist. When timestamp tracking is on, your remindlist will show a timestamp for when the last response in a channel was.\n\
+IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/544025844620853249/1026804223876280403>).");
+        }
         else if (remindmsg == "track ping") {
             if (remindpings.hasOwnProperty(message.author.id) == false) {
                 remindpings[message.author.id] = true;
