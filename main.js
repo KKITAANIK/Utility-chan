@@ -1448,7 +1448,7 @@ IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/54402
                         let atime = lastmsgdict[a];
                         let btime = lastmsgdict[b];
                             
-                        if (achannel.guildId == bchannel.guildId) {
+                        //if (achannel.guildId == bchannel.guildId) {
                             if (atime == btime) {
                                 return achannel.name.localeCompare(bchannel.name);
                             }
@@ -1460,7 +1460,7 @@ IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/54402
                                     return 1 * descmod;
                                 }
                             }
-                        }
+                        /*}
                         else {
                             if (achannel.guildId < bchannel.guildId) {
                                 return -1;
@@ -1468,7 +1468,7 @@ IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/54402
                             else if (achannel.guildId > bchannel.guildId) {
                                 return 1;
                             }
-                        }
+                        }*/
                     });
                 }
                 else if (remindmsg == "sort rand") {
