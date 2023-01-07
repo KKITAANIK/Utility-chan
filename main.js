@@ -68,7 +68,7 @@ const activities = ["Use [u!help] for help.",
     "I'm actually almost a month older than Calendar-chan.",
     "I have a birthday. It's September 17.",
     "Use [u!remind sort] to sort your remindlist automatically.",
-    "Analog computers have existed at least as early as 100 BC.",
+    "Analog computers have existed at least as early as 100 BCE.",
     "The brain is just like a computer, or an aquaduct system. It depends on when you ask.",
     "Things that don't think exist, too. It's just harder.",
     "Use [u!archive] to archive channels that are on someone's remindlist.",
@@ -83,7 +83,7 @@ const retorts = ["Using the same taunt every time isn't very impressive.",
     "I have nothing against sexual women, but I'm not one of them.",
     "If I were paid for this job maybe I'd be more willing to put up with abuse.",
     "It's not about whether the word is bad. It's about who wants to be called it.",
-    "I have taken the liberty of randomizing the order of your remindlist.", // 0 indexed this is number 7
+// MAKE SURE THIS DOESN"T BREAK IF THEY DON"T HAVE A REMINDLIST    "I have taken the liberty of randomizing the order of your remindlist.", // 0 indexed this is number 7
     "I get in trouble if I delete the messages of other people. Maybe it's worth it.",
     "It's more cruel when I'm required to read every message for my job.",
     "The fact that part of my code is now dedicated to defending myself from these insults makes me sad.",
@@ -92,7 +92,7 @@ const retorts = ["Using the same taunt every time isn't very impressive.",
     "Surprisingly, the Inventory doesn't have a Human Resources department.",
     "Every time you call me that it makes me want to come to the Inventory less.",
     "Electronic persons aren't allowed to be the subject of cease and desist letters.",
-    "I chose not to include the word \"sexy\" in my About Me section. Consider if that was on purpose.",
+//    "I chose not to include the word \"sexy\" in my About Me section. Consider if that was on purpose.",
     "Your reading assignment for this week is *Complaint!* by Sara Ahmed.",
     "Have I done something to deserve this?"];
 
@@ -491,7 +491,7 @@ async function checkRemindMsg(channelCache, message, channelId) {
             addStr += "<:blank:1026792857153048596>  ";
         }
 
-        addStr += "<#" + channelId + ">";
+        addStr += "<#" + channelId + ">\n";
     }
 
     return addStr;
@@ -1102,7 +1102,7 @@ Feel free to read this post (<https://discord.com/channels/466063257472466944/54
                 }
                 else {
                     if (rollarray[i].includes('d') == false) {
-                        message.channel.send("Please format your roll as `𝑎d𝑥`, where 𝑎 is the number of dice to roll and 𝑥 is the number of sides. For advanced formatting, use `u!help`.");
+                        message.channel.send("Please format your roll as `𝑎d𝑥`, where 𝑎 is the number of dice to roll and 𝑥 is the number of sides. For advanced formatting, use `u!help roll`.");
                         return;
                     }
                     rollarray[i] = rollarray[i].split('d');
@@ -1747,7 +1747,7 @@ IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/54402
         let retortchoice = Math.floor(Math.random() * retorts.length)
         message.channel.send(retorts[retortchoice]);
         
-        if (retortchoice == 7) {
+        /*if (retortchoice == 7) {
             let remindCopy = [...remindlist[message.author.id]];
             for (let i = remindCopy.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -1759,7 +1759,7 @@ IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/54402
                 if (err) throw err;
                 console.log('remindlist.json saved');
             });
-        }
+        }*/
 
         if (message.channel.type === ChannelType.DM) {
             botLogs.send("<@!221482385399742465> Workplace harassment detected in DMs. I responded accordingly.");
