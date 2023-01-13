@@ -467,8 +467,9 @@ async function SendRemindlist(message) {
 async function checkRemindMsg(channelCache, message, channelId) {
     let addStr = "";
     try {
-        let fetchResults = await channelCache.messages.fetch({ limit: 1 });
-        let lastMessage = fetchResults.first();
+        let fetchResults = await channelCache.messages.fetch();
+        let filteredResults = await fetchResults.filter(message => message.system == false && message.author.bot == false);
+        let lastMessage = filteredResults.first();
         
         if (remindpings.hasOwnProperty(message.author.id) && remindpings[message.author.id] == true) {
             if (lastMessage.author.id !== message.author.id) {
@@ -651,7 +652,7 @@ client.on('messageCreate', async message => {
             }
         }
     }
-    if (message.author.bot == false) {
+    if (message.author.bot == false && message.system == false) {
         for (let key in remindlist) {
             if (remindoptout.hasOwnProperty(key)) {
                 if (remindoptout[key] == true) {
@@ -1429,8 +1430,10 @@ IMPORTANT WARNINGS HERE: (<https://discord.com/channels/466063257472466944/54402
                     try {
                         for (let i = 0; i < remindlist[message.author.id].length; i++) {
                             let channel = client.channels.cache.get(remindlist[message.author.id][i]);
-                            let fetchResults = await channel.messages.fetch({ limit: 1 });
-                            let lastMessage = fetchResults.first();
+                            let fetchResults = await channel.messages.fetch();
+                            let filteredResults = await fetchResults.filter(message => message.system == false && message.author.bot == false);
+                            let lastMessage = filteredResults.first();
+                            
                             lastmsgdict[remindlist[message.author.id][i]] = lastMessage.createdTimestamp;
                             channeltimes.push(lastMessage.createdTimestamp)
                         }
